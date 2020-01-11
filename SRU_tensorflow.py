@@ -1,3 +1,4 @@
+#Assume TF 2.x
 import tensorflow as tf
 import collections
 
@@ -29,32 +30,32 @@ class SRUCell(RNNCell):
     @property
     def output_size(self):
         return self.hidden_dim
+    
+    @tf.function
+    def __call__(self, inputs, state, scope=None): 
+        if self.state_is_tuple:
+            (c_prev, h_prev) = state
+        else:
+            c_prev = state
+        # Forget Gate
+        f = tf.sigmoid(
+            tf.matmul(inputs, self.Wf) + self.bf
+        )
 
-    def __call__(self, inputs, state, scope=None):
-        with vs.variable_scope(scope or type(self).__name__):
-            if self.state_is_tuple:
-                (c_prev, h_prev) = state
-            else:
-                c_prev = state
-            # Forget Gate
-            f = tf.sigmoid(
-                tf.matmul(inputs, self.Wf) + self.bf
-            )
+        # Reset Gate
+        r = tf.sigmoid(
+            tf.matmul(inputs, self.Wr) + self.br
+        )
 
-            # Reset Gate
-            r = tf.sigmoid(
-                tf.matmul(inputs, self.Wr) + self.br
-            )
+        # Final Memory cell
+        c = f * c_prev + (1.0 - f) * tf.matmul(inputs, self.U)
 
-            # Final Memory cell
-            c = f * c_prev + (1.0 - f) * tf.matmul(inputs, self.U)
-
-            # Current Hidden state
-            current_hidden_state = r * self.g(c) + (1.0 - r) * inputs
-            if self.state_is_tuple:
-                return current_hidden_state, LSTMStateTuple(c, current_hidden_state)
-            else:
-                return current_hidden_state, c
+        # Current Hidden state
+        current_hidden_state = r * self.g(c) + (1.0 - r) * inputs
+        if self.state_is_tuple:
+            return current_hidden_state, LSTMStateTuple(c, current_hidden_state)
+        else:
+            return current_hidden_state, c
 
     def init_matrix(self, shape):
         return tf.random_normal(shape, stddev=0.1)
