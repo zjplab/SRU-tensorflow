@@ -3,7 +3,7 @@ import tensorflow as tf
 import collections
 
 # from tensorflow.python.ops import variable_scope as vs
-from tensorflow.contrib.rnn import RNNCell
+from tf.compat.v1.nn.rnn_cell import RNNCell
 
 class SRUCell(RNNCell):
     def __init__(self, num_units, activation=tf.nn.tanh, state_is_tuple=False, reuse=None):
