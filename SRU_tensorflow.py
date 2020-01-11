@@ -15,10 +15,12 @@ class SRUCell(RNNCell):
 
         self.Wr = tf.Variable(init_matrix([self.hidden_dim, self.hidden_dim]))
         self.br = tf.Variable(self.init_matrix([self.hidden_dim]))
-
+        self.vr=  tf.Variable(self.init_matrix([self.hidden_dim]))
+        
         self.Wf = tf.Variable(init_matrix([self.hidden_dim, self.hidden_dim]))
         self.bf = tf.Variable(self.init_matrix([self.hidden_dim]))
-
+        self.vf=  tf.Variable(self.init_matrix([self.hidden_dim]))
+        
         self.U = tf.Variable(init_matrix([self.hidden_dim, self.hidden_dim]))
 
 
@@ -39,12 +41,12 @@ class SRUCell(RNNCell):
             c_prev = state
         # Forget Gate
         f = tf.sigmoid(
-            tf.matmul(inputs, self.Wf) + self.bf
+            tf.matmul(inputs, self.Wf) + tf.tensordot(c_prev, self.vf)+ self.bf
         )
 
         # Reset Gate
         r = tf.sigmoid(
-            tf.matmul(inputs, self.Wr) + self.br
+            tf.matmul(inputs, self.Wr) + tf.tensordot(c_prev, self.vr) + self.br
         )
 
         # Final Memory cell
