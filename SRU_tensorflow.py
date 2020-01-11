@@ -2,7 +2,7 @@
 import tensorflow as tf
 import collections
 
-from tensorflow.python.ops import variable_scope as vs
+# from tensorflow.python.ops import variable_scope as vs
 from tensorflow.contrib.rnn import RNNCell
 
 class SRUCell(RNNCell):
